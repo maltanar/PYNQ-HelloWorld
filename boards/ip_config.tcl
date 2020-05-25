@@ -13,6 +13,7 @@ variable config_output_products_dir
 variable config_remote_cache
 variable config_util_report_filename
 variable config_ip_fclk
+variable config_enable_debug
 
 # for arguments involving paths below: use absolute paths or relative to the
 # platform/overlay/bitstream folder
@@ -48,3 +49,5 @@ set config_ip_axilite_name "s_axi_AXILiteS"
 set config_remote_cache ""
 # clock frequency
 set config_ip_fclk 100.0
+# create an ILA on main stream in/out interfaces if set to 1
+set config_enable_debug 0
