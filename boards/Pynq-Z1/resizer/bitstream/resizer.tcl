@@ -366,7 +366,7 @@ proc create_root_design { parentCell } {
     create_bd_addr_seg -range 0x00010000 -offset 0x43C00000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs resize_accel_0/$::config_ip_axilite_name/Reg] SEG_resize_accel_0_Reg
   }
 
-  if { $::enable_debug == 1 } {
+  if { $::config_enable_debug == 1 } {
     # set input DWC in to debug mode
     set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_dma_0_M_AXIS_MM2S}]
     # set output DWC out to debug mode
