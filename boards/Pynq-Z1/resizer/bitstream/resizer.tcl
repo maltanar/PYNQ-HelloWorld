@@ -367,20 +367,22 @@ proc create_root_design { parentCell } {
   }
 
   if { $::config_enable_debug == 1 } {
+    set s2mm_net_name [ get_bd_intf_nets -of_objects [get_bd_intf_pins /axi_dma_0/S_AXIS_S2MM] ]
+    set mm2s_net_name [ get_bd_intf_nets -of_objects [get_bd_intf_pins /axi_dma_0/M_AXIS_MM2S] ]
     # set input DWC in to debug mode
-    set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_dma_0_M_AXIS_MM2S}]
+    set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {mm2s_net_name}]
     # set output DWC out to debug mode
-    set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axis_dwidth_converter_1_M_AXIS}]
+    set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {s2mm_net_name}]
 
     apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {make_external "FIXED_IO, DDR" Master "Disable" Slave "Disable" }  [get_bd_cells processing_system7_0]
     apply_bd_automation -rule xilinx.com:bd_rule:debug -dict [list \
-                                                          [get_bd_intf_nets axi_dma_0_M_AXIS_MM2S] {AXIS_SIGNALS "Data and Trigger" CLK_SRC "/processing_system7_0/FCLK_CLK0" SYSTEM_ILA "Auto" APC_EN "0" } \
+                                                          [get_bd_intf_nets mm2s_net_name] {AXIS_SIGNALS "Data and Trigger" CLK_SRC "/processing_system7_0/FCLK_CLK0" SYSTEM_ILA "Auto" APC_EN "0" } \
                                                          ]
     apply_bd_automation -rule xilinx.com:bd_rule:debug -dict [list \
-                                                          [get_bd_intf_nets axis_dwidth_converter_1_M_AXIS] {AXIS_SIGNALS "Data and Trigger" CLK_SRC "/processing_system7_0/FCLK_CLK0" SYSTEM_ILA "Auto" APC_EN "0" } \
+                                                          [get_bd_intf_nets s2mm_net_name] {AXIS_SIGNALS "Data and Trigger" CLK_SRC "/processing_system7_0/FCLK_CLK0" SYSTEM_ILA "Auto" APC_EN "0" } \
                                                          ]
     startgroup
-        set_property -dict [list CONFIG.C_BRAM_CNT {8.5} CONFIG.C_DATA_DEPTH {16384}] [get_bd_cells system_ila_0]
+        set_property -dict [list CONFIG.C_DATA_DEPTH {16384}] [get_bd_cells system_ila_0]
     endgroup
   }
 
