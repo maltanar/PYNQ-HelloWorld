@@ -365,6 +365,26 @@ proc create_root_design { parentCell } {
     connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_interconnect_0/M01_AXI] [get_bd_intf_pins resize_accel_0/$::config_ip_axilite_name]
     create_bd_addr_seg -range 0x00010000 -offset 0x43C00000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs resize_accel_0/$::config_ip_axilite_name/Reg] SEG_resize_accel_0_Reg
   }
+  
+  if { $::config_enable_debug == 1 } {
+    set s2mm_net_name [ get_bd_intf_nets -of_objects [get_bd_intf_pins /axi_dma_0/S_AXIS_S2MM] ]
+    set mm2s_net_name [ get_bd_intf_nets -of_objects [get_bd_intf_pins /axi_dma_0/M_AXIS_MM2S] ]
+    # set input DWC in to debug mode
+    set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {mm2s_net_name}]
+    # set output DWC out to debug mode
+    set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {s2mm_net_name}]
+
+    apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {make_external "FIXED_IO, DDR" Master "Disable" Slave "Disable" }  [get_bd_cells processing_system7_0]
+    apply_bd_automation -rule xilinx.com:bd_rule:debug -dict [list \
+                                                          [get_bd_intf_nets mm2s_net_name] {AXIS_SIGNALS "Data and Trigger" CLK_SRC "/processing_system7_0/FCLK_CLK0" SYSTEM_ILA "Auto" APC_EN "0" } \
+                                                         ]
+    apply_bd_automation -rule xilinx.com:bd_rule:debug -dict [list \
+                                                          [get_bd_intf_nets s2mm_net_name] {AXIS_SIGNALS "Data and Trigger" CLK_SRC "/processing_system7_0/FCLK_CLK0" SYSTEM_ILA "Auto" APC_EN "0" } \
+                                                         ]
+    startgroup
+        set_property -dict [list CONFIG.C_DATA_DEPTH {16384}] [get_bd_cells system_ila_0]
+    endgroup
+  }
 
   # Restore current instance
   current_bd_instance $oldCurInst
